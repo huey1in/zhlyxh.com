@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  
+  <!-- 浏览器标签页图标 (爱心) -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 24 24%22><path fill=%22%23ff5f9e%22 d=%22M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z%22/></svg>">
+  
+  <title>首页 - 我们的故事</title>
+  <style>
+    :root {
+      --bg-color: #fff6fa;
+      --text-main: #3d2a31;
+      --text-sub: #6b4b58;
+      --accent: #ff5f9e;
+      --line-color: #f5cce0;
+      --card-bg: #ffffff;
+      --nav-bg: rgba(255, 255, 255, 0.9);
+      --shadow: 0 6px 24px rgba(255, 95, 158, 0.12);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.6;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* 导航栏样式 */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 24px;
+      background: var(--nav-bg);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+      box-shadow: 0 1px 10px rgba(0,0,0,0.03);
+      transition: transform 0.4s ease-in-out;
+    }
+    .top-bar.nav-hidden { transform: translateY(-100%); }
+    .brand {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--accent);
+      text-decoration: none;
+      letter-spacing: 1px;
+    }
+    /* 汉堡菜单样式 */
+    .hamburger {
+      position: fixed;
+      top: 20px;
+      right: 24px;
+      width: 24px;
+      height: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      z-index: 3000;
+    }
+    .hamburger span {
+      display: block;
+      width: 100%;
+      height: 2px;
+      background-color: var(--text-sub);
+      border-radius: 2px;
+      transition: all 0.3s ease;
+    }
+    .hamburger.active span:nth-child(1) { transform: translateY(9px) rotate(45deg); background-color: var(--accent); }
+    .hamburger.active span:nth-child(2) { opacity: 0; }
+    .hamburger.active span:nth-child(3) { transform: translateY(-9px) rotate(-45deg); background-color: var(--accent); }
+    
+    /* 全屏菜单样式 */
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background: rgba(255, 246, 250, 0.98);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 40px;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s ease, visibility 0.4s;
+      z-index: 2000;
+    }
+    .mobile-menu.active { opacity: 1; visibility: visible; }
+    .mobile-menu a {
+      text-decoration: none;
+      color: var(--text-main);
+      font-size: 1.5rem;
+      font-weight: 300;
+      letter-spacing: 2px;
+      transition: color 0.3s, transform 0.3s;
+      position: relative;
+    }
+    .mobile-menu a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -5px;
+      left: 50%;
+      background: var(--accent);
+      transition: all 0.3s ease;
+    }
+    .mobile-menu a:hover { color: var(--accent); transform: translateY(-3px); }
+    .mobile-menu a:hover::after { width: 100%; left: 0; }
+
+    /* 头部 Hero 样式 */
+    header {
+      min-height: 60vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      padding: 80px 20px 40px;
+      animation: fadeIn 1.2s ease-out;
+    }
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 300;
+      letter-spacing: 4px;
+      margin-bottom: 10px;
+      color: var(--text-main);
+    }
+    .subtitle {
+      font-size: 1rem;
+      color: var(--accent);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-bottom: 30px;
+    }
+    .counter-box {
+      display: inline-block;
+      padding: 12px 30px;
+      background: #fff;
+      border: 1px solid rgba(0,0,0,0.05);
+      border-radius: 50px;
+      box-shadow: var(--shadow);
+      font-size: 1rem;
+      color: var(--text-sub);
+      letter-spacing: 1px;
+    }
+    .counter-box span { color: var(--accent); font-weight: bold; font-size: 1.2rem; margin: 0 5px; }
+
+    /* 时间线核心样式 */
+    .timeline {
+      position: relative;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 40px 0 100px;
+    }
+    .timeline::after {
+      content: '';
+      position: absolute;
+      width: 1px;
+      background: var(--line-color);
+      top: 0;
+      bottom: 0;
+      left: 50%;
+      margin-left: -0.5px;
+    }
+    .item {
+      padding: 10px 40px;
+      position: relative;
+      width: 50%;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: all 0.8s ease;
+      z-index: 1; 
+    }
+    .item:hover { z-index: 10; }
+    .item.show-photo { z-index: 100; } /* 移动端显示图片时层级最高 */
+
+    .item.left { left: 0; text-align: right; }
+    .item.right { left: 50%; text-align: left; }
+    
+    .item::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: var(--bg-color);
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      top: 30px;
+      z-index: 2;
+      transition: all 0.3s;
+    }
+    .item.left::after { right: -5px; }
+    .item.right::after { left: -5px; }
+    .item:hover::after { background: var(--accent); transform: scale(1.2); }
+
+    /* 图片气泡 */
+    .photo-bubble {
+      position: absolute;
+      left: 50%; 
+      top: 0;    
+      width: auto;
+      max-width: 320px;
+      height: auto;
+      padding: 6px; 
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+      
+      opacity: 0;
+      visibility: hidden;
+      transform: translate(-50%, -80%) scale(0.8);
+      pointer-events: none; 
+      
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 20; 
+      
+      /* 九宫格布局 */
+      display: grid;
+      gap: 4px;
+    }
+    /* 根据图片数量自动调整布局 */
+    .photo-bubble.cols-1 { grid-template-columns: 1fr; width: 180px; }
+    .photo-bubble.cols-2 { grid-template-columns: repeat(2, 1fr); width: 220px; }
+    .photo-bubble.cols-3 { grid-template-columns: repeat(3, 1fr); width: 280px; }
+    
+    .photo-bubble img { 
+      width: 100%; 
+      height: auto;
+      aspect-ratio: 1;
+      object-fit: cover; 
+      display: block; 
+      border-radius: 4px; 
+    }
+    .photo-bubble::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0; 
+      height: 0; 
+      border-left: 6px solid transparent;
+      border-right: 6px solid transparent;
+      border-top: 6px solid #fff; 
+    }
+
+    /* PC端 Hover 触发 */
+    @media (min-width: 769px) {
+        .item:hover .photo-bubble,
+        .item:focus-within .photo-bubble {
+          opacity: 1;
+          visibility: visible;
+          transform: translate(-50%, -105%) scale(1);
+        }
+    }
+
+    /* 内容卡片 */
+    .content {
+      background: var(--card-bg);
+      padding: 25px 30px;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      transition: transform 0.3s ease;
+      position: relative; 
+    }
+    .item:hover .content { transform: translateY(-5px); }
+    
+    .date {
+      display: block;
+      font-family: 'Georgia', serif;
+      font-size: 0.9rem;
+      color: var(--accent);
+      font-style: italic;
+      margin-bottom: 8px;
+    }
+    .title { font-size: 1.2rem; font-weight: 500; margin-bottom: 12px; }
+    
+    /* 双视角样式 */
+    .views-container { margin-top: 8px; }
+    .view-item { margin-bottom: 12px; }
+    .view-item:last-child { margin-bottom: 0; }
+    .view-label {
+      display: inline-block;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #fff;
+      background: var(--accent);
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+    }
+    .view-label.yxh { background: #6b9fff; }
+    .view-text { font-size: 0.95rem; color: var(--text-sub); text-align: justify; line-height: 1.7; }
+    .desc { font-size: 0.95rem; color: var(--text-sub); text-align: justify; line-height: 1.7; }
+
+    /* 移动端适配 */
+    @media screen and (max-width: 768px) {
+      header { min-height: 50vh; padding-top: 80px; }
+      h1 { font-size: 2rem; }
+      .timeline::after { left: 30px; margin-left: 0; }
+      .item { width: 100%; padding-left: 60px; padding-right: 20px; margin-bottom: 20px; }
+      
+      /* === 核心CSS修复：移动端强制左对齐 === */
+      .item.left, .item.right { left: 0 !important; text-align: left; }
+      
+      .item::after { left: 25px !important; right: auto !important; }
+      .content { padding: 20px; }
+      
+      /* 移动端图片气泡 */
+      .photo-bubble {
+        position: absolute;
+        top: 0;
+        left: 50%; 
+        opacity: 0;
+        visibility: hidden;
+        transform: translate(-50%, -50%) scale(0.8);
+        max-width: 280px;
+      }
+      .photo-bubble.cols-1 { width: 150px; }
+      .photo-bubble.cols-2 { width: 200px; }
+      .photo-bubble.cols-3 { width: 260px; }
+      
+      /* 移动端点击显示状态 */
+      .item.show-photo .photo-bubble { 
+        opacity: 1;
+        visibility: visible;
+        transform: translate(-50%, -105%) scale(1);
+      }
+    }
+
+    .visible { opacity: 1; transform: translateY(0); }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    footer { text-align: center; padding: 50px 20px; color: #999; font-size: 0.8rem; letter-spacing: 2px; }
+  </style>
+</head>
+<body>
+  <nav class="top-bar" id="topBar">
+    <a href="#" class="brand">Z & Y</a>
+  </nav>
+  <div class="hamburger" id="hamburgerBtn">
+    <span></span><span></span><span></span>
+  </div>
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#" onclick="closeMenu()">首页</a>
+    <a href="/gallery" onclick="closeMenu()">相册</a>
+    <a href="/admin" onclick="closeMenu()">后台</a>
+  </div>
+  <header>
+    <h1>ZHL & YXH</h1>
+    <div class="subtitle">Love Timeline</div>
+    <div class="counter-box" id="counter">在一起 <span id="days">0</span> 天</div>
+  </header>
+  <div class="timeline"></div>
+  <footer><p>LOVE IS A LONG JOURNEY</p></footer>
+  <script>
+    let lastScrollTop = 0;
+    const topBar = document.getElementById('topBar');
+    window.addEventListener('scroll', () => {
+      let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      if (scrollTop < 0) scrollTop = 0;
+      if (scrollTop > lastScrollTop && scrollTop > 60) topBar.classList.add('nav-hidden');
+      else topBar.classList.remove('nav-hidden');
+      lastScrollTop = scrollTop;
+    });
+
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    function toggleMenu() {
+      hamburgerBtn.classList.toggle('active');
+      mobileMenu.classList.toggle('active');
+      document.body.style.overflow = mobileMenu.classList.contains('active') ? 'hidden' : '';
+    }
+    function closeMenu() {
+      if (mobileMenu.classList.contains('active')) toggleMenu();
+    }
+    hamburgerBtn.addEventListener('click', toggleMenu);
+
+    const timelineEl = document.querySelector('.timeline');
+    const dayCounterEl = document.getElementById('days');
+    const staticTailItem = { date: 'Future', title: '未完待续', desc: '生活依旧平淡而美好，期待与你共度的每一个明天。' };
+    
+    // 注意：这里由于你的数据格式是 2025.09.12，最好也统一一下
+    const defaultStartDate = '2025/09/12'; 
+    
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => { if (entry.isIntersecting) entry.target.classList.add('visible'); });
+    }, { threshold: 0.1 });
+
+    function updateDayCounter(dateStr) {
+      // 修复：如果传入的是带点的日期，也要转成 / 才能计算天数
+      const safeDateStr = (dateStr || defaultStartDate).replace(/\./g, '/');
+      const start = new Date(safeDateStr);
+      const now = new Date();
+      const diff = now - start;
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      dayCounterEl.textContent = days >= 0 ? days : 0;
+    }
+
+    function renderItems(items) {
+      timelineEl.innerHTML = '';
+      items.forEach((item, index) => {
+        const side = index % 2 === 0 ? 'left' : 'right';
+        const itemEl = document.createElement('div');
+        itemEl.className = `item ${side}`;
+        
+        const contentEl = document.createElement('div');
+        contentEl.className = 'content';
+
+        // 支持多图片（最多9张九宫格）
+        let images = item.images || (item.image ? [item.image] : []);
+        images = images.slice(0, 9); // 最多9张
+        
+        if (images.length > 0) {
+          const photo = document.createElement('div');
+          photo.className = 'photo-bubble';
+          
+          // 根据图片数量决定列数
+          let cols = 1;
+          if (images.length === 2) cols = 2;
+          else if (images.length >= 3) cols = 3;
+          photo.classList.add(`cols-${cols}`);
+          
+          images.forEach(imgSrc => {
+            const img = document.createElement('img');
+            img.src = imgSrc;
+            img.alt = item.title || 'photo';
+            photo.appendChild(img);
+          });
+          itemEl.appendChild(photo);
+        }
+        
+        const dateEl = document.createElement('span');
+        dateEl.className = 'date';
+        dateEl.textContent = item.date || '';
+        const titleEl = document.createElement('h2');
+        titleEl.className = 'title';
+        titleEl.textContent = item.title || '';
+        
+        contentEl.append(dateEl, titleEl);
+        
+        // 支持双视角 views 结构
+        if (item.views && (item.views.zhl || item.views.yxh)) {
+          const viewsContainer = document.createElement('div');
+          viewsContainer.className = 'views-container';
+          
+          if (item.views.zhl) {
+            const zhlView = document.createElement('div');
+            zhlView.className = 'view-item';
+            zhlView.innerHTML = `<span class="view-label">zhl</span><p class="view-text">${item.views.zhl}</p>`;
+            viewsContainer.appendChild(zhlView);
+          }
+          
+          if (item.views.yxh) {
+            const yxhView = document.createElement('div');
+            yxhView.className = 'view-item';
+            yxhView.innerHTML = `<span class="view-label yxh">yxh</span><p class="view-text">${item.views.yxh}</p>`;
+            viewsContainer.appendChild(yxhView);
+          }
+          
+          contentEl.appendChild(viewsContainer);
+        } else if (item.desc) {
+          // 兼容旧的 desc 字段
+          const descEl = document.createElement('p');
+          descEl.className = 'desc';
+          descEl.textContent = item.desc || '';
+          contentEl.appendChild(descEl);
+        }
+        
+        itemEl.appendChild(contentEl);
+        timelineEl.appendChild(itemEl);
+        observer.observe(itemEl);
+        
+        // 移动端点击逻辑
+        if (window.innerWidth <= 768 && images.length > 0) {
+          itemEl.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const isCurrentlyShown = itemEl.classList.contains('show-photo');
+            document.querySelectorAll('.item.show-photo').forEach((el) => el.classList.remove('show-photo'));
+            if (!isCurrentlyShown) {
+                itemEl.classList.add('show-photo');
+            }
+          });
+        }
+      });
+    }
+
+    // 全局点击监听：点击空白处关闭图片预览
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.item.show-photo').forEach((el) => {
+            el.classList.remove('show-photo');
+        });
+    });
+
+    async function loadTimeline() {
+      try {
+        // 添加时间戳防止 CDN 缓存
+        const res = await fetch(`/api/items?_t=${Date.now()}`, { cache: 'no-store' });
+        if (!res.ok) throw new Error(`请求失败: ${res.status}`);
+        const data = await res.json();
+        
+        // 更新天数
+        updateDayCounter(data.startDate);
+        
+        let items = Array.isArray(data.items) ? data.items.slice() : [];
+
+        // === 核心修复：处理 2025.10.8 这种带点的格式 ===
+        items.sort((a, b) => {
+            let dateA = a.date || '';
+            let dateB = b.date || '';
+            
+            // 关键：把 . 替换成 / (兼容 iOS)
+            // 正则 /\./g 意思是全局匹配点号
+            if (typeof dateA === 'string') dateA = dateA.replace(/\./g, '/');
+            if (typeof dateB === 'string') dateB = dateB.replace(/\./g, '/');
+            
+            return new Date(dateB) - new Date(dateA);
+        });
+
+        items.unshift(staticTailItem);
+
+        renderItems(items);
+      } catch (err) {
+        console.error('加载数据失败', err);
+        updateDayCounter(defaultStartDate);
+        renderItems([staticTailItem]);
+      }
+    }
+    loadTimeline();
+  </script>
+</body>
+</html>
